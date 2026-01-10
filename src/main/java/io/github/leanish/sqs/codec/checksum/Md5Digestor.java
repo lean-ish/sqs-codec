@@ -1,0 +1,38 @@
+/*
+ * Copyright (c) 2026 Leandro Aguiar
+ * Licensed under the MIT License.
+ * See LICENSE file in the project root for full license information.
+ */
+package io.github.leanish.sqs.codec.checksum;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
+import io.github.leanish.sqs.codec.ChecksumAlgorithm;
+import io.github.leanish.sqs.codec.PayloadCodecException;
+
+public final class Md5Digestor implements Digestor {
+
+    private static final Base64.Encoder BASE64_ENCODER = Base64.getUrlEncoder();
+
+    @Override
+    public ChecksumAlgorithm algorithm() {
+        return ChecksumAlgorithm.MD5;
+    }
+
+    @Override
+    public String checksum(byte[] payload) {
+        MessageDigest digest = digest();
+        byte[] hash = digest.digest(payload);
+        return BASE64_ENCODER.encodeToString(hash);
+    }
+
+    private MessageDigest digest() {
+        try {
+            return MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new PayloadCodecException("MD5 digest is not available", e);
+        }
+    }
+}

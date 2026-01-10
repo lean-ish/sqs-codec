@@ -3,26 +3,32 @@
  * Licensed under the MIT License.
  * See LICENSE file in the project root for full license information.
  */
-package io.github.leanish.sqs.codec;
+package io.github.leanish.sqs.codec.checksum;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
-final class PayloadChecksum {
+import io.github.leanish.sqs.codec.ChecksumAlgorithm;
+import io.github.leanish.sqs.codec.PayloadCodecException;
+
+public final class Sha256Digestor implements Digestor {
 
     private static final Base64.Encoder BASE64_ENCODER = Base64.getUrlEncoder();
 
-    private PayloadChecksum() {
+    @Override
+    public ChecksumAlgorithm algorithm() {
+        return ChecksumAlgorithm.SHA256;
     }
 
-    static String sha256Base64(byte[] payload) {
-        MessageDigest digest = sha256Digest();
+    @Override
+    public String checksum(byte[] payload) {
+        MessageDigest digest = digest();
         byte[] hash = digest.digest(payload);
         return BASE64_ENCODER.encodeToString(hash);
     }
 
-    private static MessageDigest sha256Digest() {
+    private MessageDigest digest() {
         try {
             return MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {

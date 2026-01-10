@@ -3,20 +3,17 @@
  * Licensed under the MIT License.
  * See LICENSE file in the project root for full license information.
  */
-package io.github.leanish.sqs.codec;
+package io.github.leanish.sqs.codec.encoding;
 
 import java.nio.charset.StandardCharsets;
 
-final class NonePayloadCodec implements PayloadCodec {
+import io.github.leanish.sqs.codec.EncodingAlgorithm;
+
+public final class UnencodedEncoder implements Encoder {
 
     @Override
-    public PayloadEncoding encoding() {
-        return PayloadEncoding.NONE;
-    }
-
-    @Override
-    public String encode(String payload) {
-        return payload;
+    public EncodingAlgorithm algorithm() {
+        return EncodingAlgorithm.NONE;
     }
 
     @Override
@@ -25,12 +22,7 @@ final class NonePayloadCodec implements PayloadCodec {
     }
 
     @Override
-    public String decodeToString(String encoded) {
-        return encoded;
-    }
-
-    @Override
-    public byte[] decodeToBytes(String encoded) {
+    public byte[] decode(String encoded) {
         return encoded.getBytes(StandardCharsets.UTF_8);
     }
 }
