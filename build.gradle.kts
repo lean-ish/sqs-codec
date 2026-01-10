@@ -41,8 +41,8 @@ repositories {
 
 dependencies {
     // BOMs
-    compileOnly(platform("software.amazon.awssdk:bom:2.41.4"))
-    testImplementation(platform("software.amazon.awssdk:bom:2.41.4"))
+    compileOnly(platform("software.amazon.awssdk:bom:2.41.5"))
+    testImplementation(platform("software.amazon.awssdk:bom:2.41.5"))
     testImplementation(platform("org.junit:junit-bom:6.0.2"))
     testImplementation(platform("org.mockito:mockito-bom:5.15.2"))
 
