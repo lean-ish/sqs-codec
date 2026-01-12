@@ -20,6 +20,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import io.github.leanish.sqs.codec.algorithms.CompressionAlgorithm;
 import io.github.leanish.sqs.codec.algorithms.compression.Compressor;
 import io.github.leanish.sqs.codec.algorithms.compression.GzipCompressor;
+import io.github.leanish.sqs.codec.algorithms.compression.SnappyCompressor;
 import io.github.leanish.sqs.codec.algorithms.compression.UncompressedCompressor;
 import io.github.leanish.sqs.codec.algorithms.compression.ZstdCompressor;
 
@@ -65,10 +66,20 @@ class CompressionTest {
                 .isInstanceOf(java.io.UncheckedIOException.class);
     }
 
+    @Test
+    void snappyDecompressRejectsInvalidPayload() {
+        SnappyCompressor compressor = new SnappyCompressor();
+        byte[] payload = "not-snappy".getBytes(StandardCharsets.UTF_8);
+
+        assertThatThrownBy(() -> compressor.decompress(payload))
+                .isInstanceOf(java.io.UncheckedIOException.class);
+    }
+
     private static Stream<Arguments> compressorCases() {
         return Stream.of(
                 Arguments.of(new UncompressedCompressor(), CompressionAlgorithm.NONE),
                 Arguments.of(new GzipCompressor(), CompressionAlgorithm.GZIP),
+                Arguments.of(new SnappyCompressor(), CompressionAlgorithm.SNAPPY),
                 Arguments.of(new ZstdCompressor(), CompressionAlgorithm.ZSTD));
     }
 }

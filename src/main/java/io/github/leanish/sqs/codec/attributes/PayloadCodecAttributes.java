@@ -5,12 +5,6 @@
  */
 package io.github.leanish.sqs.codec.attributes;
 
-import java.util.Map;
-
-import org.jspecify.annotations.Nullable;
-
-import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
-
 public final class PayloadCodecAttributes {
 
     public static final String COMPRESSION_ALG = "x-codec-compression-alg";
@@ -25,26 +19,4 @@ public final class PayloadCodecAttributes {
     private PayloadCodecAttributes() {
     }
 
-    @Nullable
-    public static String attributeValue(Map<String, MessageAttributeValue> attributes, String name) {
-        MessageAttributeValue attributeValue = attributes.get(name);
-        if (attributeValue == null) {
-            return null;
-        }
-        return attributeValue.stringValue();
-    }
-
-    public static MessageAttributeValue stringAttribute(String value) {
-        return MessageAttributeValue.builder()
-                .dataType("String")
-                .stringValue(value)
-                .build();
-    }
-
-    public static MessageAttributeValue numberAttribute(int value) {
-        return MessageAttributeValue.builder()
-                .dataType("Number")
-                .stringValue(Integer.toString(value))
-                .build();
-    }
 }

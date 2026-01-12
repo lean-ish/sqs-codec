@@ -13,6 +13,7 @@ import java.util.Map;
 import io.github.leanish.sqs.codec.algorithms.ChecksumAlgorithm;
 import io.github.leanish.sqs.codec.algorithms.CompressionAlgorithm;
 import io.github.leanish.sqs.codec.algorithms.EncodingAlgorithm;
+import io.github.leanish.sqs.codec.attributes.MessageAttributeUtils;
 import io.github.leanish.sqs.codec.attributes.PayloadChecksumAttributeHandler;
 import io.github.leanish.sqs.codec.attributes.PayloadCodecAttributes;
 import io.github.leanish.sqs.codec.attributes.PayloadCodecConfigurationAttributeHandler;
@@ -149,7 +150,7 @@ public class SqsPayloadCodecInterceptor implements ExecutionInterceptor {
                 .configuration();
         boolean shouldDecode = configuration.compressionAlgorithm() != CompressionAlgorithm.NONE
                 || configuration.encodingAlgorithm() != EncodingAlgorithm.NONE;
-        String checksumValue = PayloadCodecAttributes.attributeValue(attributes, PayloadCodecAttributes.CHECKSUM);
+        String checksumValue = MessageAttributeUtils.attributeValue(attributes, PayloadCodecAttributes.CHECKSUM);
         boolean shouldValidateChecksum = PayloadChecksumAttributeHandler.needsValidation(checksumValue, configuration.checksumAlgorithm());
         if (!shouldDecode && !shouldValidateChecksum) {
             return message;

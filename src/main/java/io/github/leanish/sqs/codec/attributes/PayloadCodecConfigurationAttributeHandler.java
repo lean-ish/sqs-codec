@@ -57,8 +57,8 @@ public final class PayloadCodecConfigurationAttributeHandler {
     }
 
     public static PayloadCodecConfigurationAttributeHandler fromAttributes(Map<String, MessageAttributeValue> attributes) {
-        String compressionValue = PayloadCodecAttributes.attributeValue(attributes, PayloadCodecAttributes.COMPRESSION_ALG);
-        String encodingValue = PayloadCodecAttributes.attributeValue(attributes, PayloadCodecAttributes.ENCODING_ALG);
+        String compressionValue = MessageAttributeUtils.attributeValue(attributes, PayloadCodecAttributes.COMPRESSION_ALG);
+        String encodingValue = MessageAttributeUtils.attributeValue(attributes, PayloadCodecAttributes.ENCODING_ALG);
         CompressionAlgorithm compressionAlgorithm = CompressionAlgorithm.NONE;
         if (StringUtils.isNotBlank(compressionValue)) {
             compressionAlgorithm = compressionFromAttributeValue(compressionValue);
@@ -72,7 +72,7 @@ public final class PayloadCodecConfigurationAttributeHandler {
                 && StringUtils.isNotBlank(encodingValue)) {
             throw new PayloadCodecException("Unsupported payload encoding: " + encodingValue);
         }
-        String versionValue = PayloadCodecAttributes.attributeValue(attributes, PayloadCodecAttributes.VERSION);
+        String versionValue = MessageAttributeUtils.attributeValue(attributes, PayloadCodecAttributes.VERSION);
         int version = PayloadCodecAttributes.VERSION_VALUE;
         if (StringUtils.isNotBlank(versionValue)) {
             try {
@@ -84,7 +84,7 @@ public final class PayloadCodecConfigurationAttributeHandler {
                 throw new PayloadCodecException("Unsupported codec version: " + versionValue);
             }
         }
-        String checksumAlgorithmValue = PayloadCodecAttributes.attributeValue(attributes, PayloadCodecAttributes.CHECKSUM_ALG);
+        String checksumAlgorithmValue = MessageAttributeUtils.attributeValue(attributes, PayloadCodecAttributes.CHECKSUM_ALG);
         ChecksumAlgorithm checksumAlgorithm = ChecksumAlgorithm.NONE;
         if (StringUtils.isNotBlank(checksumAlgorithmValue)) {
             checksumAlgorithm = ChecksumAlgorithm.fromAttributeValue(checksumAlgorithmValue);
@@ -105,13 +105,13 @@ public final class PayloadCodecConfigurationAttributeHandler {
 
     public void applyTo(Map<String, MessageAttributeValue> attributes) {
         attributes.put(PayloadCodecAttributes.COMPRESSION_ALG,
-                PayloadCodecAttributes.stringAttribute(configuration.compressionAlgorithm().id()));
+                MessageAttributeUtils.stringAttribute(configuration.compressionAlgorithm().id()));
         attributes.put(PayloadCodecAttributes.ENCODING_ALG,
-                PayloadCodecAttributes.stringAttribute(configuration.encodingAlgorithm().id()));
-        attributes.put(PayloadCodecAttributes.VERSION, PayloadCodecAttributes.numberAttribute(version));
+                MessageAttributeUtils.stringAttribute(configuration.encodingAlgorithm().id()));
+        attributes.put(PayloadCodecAttributes.VERSION, MessageAttributeUtils.numberAttribute(version));
         if (StringUtils.isNotBlank(checksumAlgorithmValue)) {
             attributes.put(PayloadCodecAttributes.CHECKSUM_ALG,
-                    PayloadCodecAttributes.stringAttribute(checksumAlgorithmValue));
+                    MessageAttributeUtils.stringAttribute(checksumAlgorithmValue));
         }
     }
 
@@ -141,7 +141,7 @@ public final class PayloadCodecConfigurationAttributeHandler {
     }
 
     private static boolean hasNonBlankAttribute(Map<String, MessageAttributeValue> attributes, String name) {
-        String value = PayloadCodecAttributes.attributeValue(attributes, name);
+        String value = MessageAttributeUtils.attributeValue(attributes, name);
         return StringUtils.isNotBlank(value);
     }
 }

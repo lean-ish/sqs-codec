@@ -50,12 +50,14 @@ dependencies {
     testImplementation(platform("software.amazon.awssdk:bom:2.41.5"))
     testImplementation(platform("org.junit:junit-bom:6.0.2"))
     testImplementation(platform("org.mockito:mockito-bom:5.15.2"))
+    testImplementation(platform("org.testcontainers:testcontainers-bom:2.0.3"))
 
     // Consumers provide AWS SDK versions; keep it compileOnly to avoid forcing a version.
     compileOnly("software.amazon.awssdk:sqs")
 
-    implementation("com.github.luben:zstd-jni:1.5.7-6")
     implementation("org.apache.commons:commons-lang3:3.20.0")
+    implementation("com.github.luben:zstd-jni:1.5.7-6")
+    implementation("org.xerial.snappy:snappy-java:1.1.10.8")
 
     compileOnly("org.jspecify:jspecify:1.0.0")
     compileOnly("org.jetbrains:annotations:24.1.0")
@@ -67,6 +69,8 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.assertj:assertj-core:3.27.6")
     testImplementation("org.mockito:mockito-core")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+    testImplementation("org.testcontainers:testcontainers-localstack")
     // IDE test runners use the launcher when not delegating to Gradle.
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testCompileOnly("org.projectlombok:lombok:1.18.36")
@@ -82,7 +86,15 @@ tasks.withType<JavaExec>().configureEach {
 }
 
 tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        val excludedTags = System.getProperty("excludeTags")
+        if (!excludedTags.isNullOrBlank()) {
+            excludeTags(*excludedTags.split(',')
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .toTypedArray())
+        }
+    }
     // Required for zstd-jni native access on JDK 21+ to avoid future hard failures.
     jvmArgs("--enable-native-access=ALL-UNNAMED")
 }

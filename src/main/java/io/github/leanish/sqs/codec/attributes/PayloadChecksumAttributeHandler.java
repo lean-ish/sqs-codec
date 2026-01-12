@@ -60,7 +60,7 @@ public final class PayloadChecksumAttributeHandler {
 
     public void applyTo(Map<String, MessageAttributeValue> attributes) {
         if (StringUtils.isNotBlank(checksumValue)) {
-            attributes.put(PayloadCodecAttributes.CHECKSUM, PayloadCodecAttributes.stringAttribute(checksumValue));
+            attributes.put(PayloadCodecAttributes.CHECKSUM, MessageAttributeUtils.stringAttribute(checksumValue));
         }
     }
 }

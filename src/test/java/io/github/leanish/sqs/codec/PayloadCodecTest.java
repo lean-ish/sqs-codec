@@ -46,17 +46,13 @@ class PayloadCodecTest {
 
     @Test
     void effectiveEncodingAlgorithmUsesBase64WhenCompressed() {
-        assertThat(EncodingAlgorithm.effectiveFor(
-                CompressionAlgorithm.ZSTD,
-                EncodingAlgorithm.NONE))
+        assertThat(EncodingAlgorithm.effectiveFor(CompressionAlgorithm.ZSTD, EncodingAlgorithm.NONE))
                 .isEqualTo(EncodingAlgorithm.BASE64);
-        assertThat(EncodingAlgorithm.effectiveFor(
-                CompressionAlgorithm.GZIP,
-                EncodingAlgorithm.BASE64_STD))
+        assertThat(EncodingAlgorithm.effectiveFor(CompressionAlgorithm.SNAPPY, EncodingAlgorithm.NONE))
+                .isEqualTo(EncodingAlgorithm.BASE64);
+        assertThat(EncodingAlgorithm.effectiveFor(CompressionAlgorithm.GZIP, EncodingAlgorithm.BASE64_STD))
                 .isEqualTo(EncodingAlgorithm.BASE64_STD);
-        assertThat(EncodingAlgorithm.effectiveFor(
-                CompressionAlgorithm.NONE,
-                EncodingAlgorithm.NONE))
+        assertThat(EncodingAlgorithm.effectiveFor(CompressionAlgorithm.NONE, EncodingAlgorithm.NONE))
                 .isEqualTo(EncodingAlgorithm.NONE);
     }
 
@@ -75,11 +71,14 @@ class PayloadCodecTest {
                 Arguments.of(CompressionAlgorithm.NONE, EncodingAlgorithm.NONE),
                 Arguments.of(CompressionAlgorithm.NONE, EncodingAlgorithm.BASE64),
                 Arguments.of(CompressionAlgorithm.NONE, EncodingAlgorithm.BASE64_STD),
+                Arguments.of(CompressionAlgorithm.ZSTD, EncodingAlgorithm.NONE),
                 Arguments.of(CompressionAlgorithm.ZSTD, EncodingAlgorithm.BASE64),
                 Arguments.of(CompressionAlgorithm.ZSTD, EncodingAlgorithm.BASE64_STD),
-                Arguments.of(CompressionAlgorithm.ZSTD, EncodingAlgorithm.NONE),
+                Arguments.of(CompressionAlgorithm.SNAPPY, EncodingAlgorithm.NONE),
+                Arguments.of(CompressionAlgorithm.SNAPPY, EncodingAlgorithm.BASE64),
+                Arguments.of(CompressionAlgorithm.SNAPPY, EncodingAlgorithm.BASE64_STD),
+                Arguments.of(CompressionAlgorithm.GZIP, EncodingAlgorithm.NONE),
                 Arguments.of(CompressionAlgorithm.GZIP, EncodingAlgorithm.BASE64),
-                Arguments.of(CompressionAlgorithm.GZIP, EncodingAlgorithm.BASE64_STD),
-                Arguments.of(CompressionAlgorithm.GZIP, EncodingAlgorithm.NONE));
+                Arguments.of(CompressionAlgorithm.GZIP, EncodingAlgorithm.BASE64_STD));
     }
 }
