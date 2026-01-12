@@ -20,13 +20,13 @@ import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
 public final class PayloadCodecConfigurationAttributeHandler {
 
     private final PayloadCodecConfiguration configuration;
-    private final String version;
+    private final int version;
     // Preserve the raw attribute value to report exact unsupported algorithms.
     private final @Nullable String checksumAlgorithmValue;
 
     private PayloadCodecConfigurationAttributeHandler(
             PayloadCodecConfiguration configuration,
-            String version,
+            int version,
             @Nullable String checksumAlgorithmValue) {
         this.configuration = configuration;
         this.version = version;
@@ -72,12 +72,17 @@ public final class PayloadCodecConfigurationAttributeHandler {
                 && StringUtils.isNotBlank(encodingValue)) {
             throw new PayloadCodecException("Unsupported payload encoding: " + encodingValue);
         }
-        String version = PayloadCodecAttributes.attributeValue(attributes, PayloadCodecAttributes.VERSION);
-        if (StringUtils.isNotBlank(version) && !PayloadCodecAttributes.VERSION_VALUE.equals(version)) {
-            throw new PayloadCodecException("Unsupported codec version: " + version);
-        }
-        if (StringUtils.isBlank(version)) {
-            version = PayloadCodecAttributes.VERSION_VALUE;
+        String versionValue = PayloadCodecAttributes.attributeValue(attributes, PayloadCodecAttributes.VERSION);
+        int version = PayloadCodecAttributes.VERSION_VALUE;
+        if (StringUtils.isNotBlank(versionValue)) {
+            try {
+                version = Integer.parseInt(versionValue);
+            } catch (NumberFormatException e) {
+                throw new PayloadCodecException("Unsupported codec version: " + versionValue);
+            }
+            if (version != PayloadCodecAttributes.VERSION_VALUE) {
+                throw new PayloadCodecException("Unsupported codec version: " + versionValue);
+            }
         }
         String checksumAlgorithmValue = PayloadCodecAttributes.attributeValue(attributes, PayloadCodecAttributes.CHECKSUM_ALG);
         ChecksumAlgorithm checksumAlgorithm = ChecksumAlgorithm.NONE;
@@ -103,7 +108,7 @@ public final class PayloadCodecConfigurationAttributeHandler {
                 PayloadCodecAttributes.stringAttribute(configuration.compressionAlgorithm().id()));
         attributes.put(PayloadCodecAttributes.ENCODING_ALG,
                 PayloadCodecAttributes.stringAttribute(configuration.encodingAlgorithm().id()));
-        attributes.put(PayloadCodecAttributes.VERSION, PayloadCodecAttributes.stringAttribute(version));
+        attributes.put(PayloadCodecAttributes.VERSION, PayloadCodecAttributes.numberAttribute(version));
         if (StringUtils.isNotBlank(checksumAlgorithmValue)) {
             attributes.put(PayloadCodecAttributes.CHECKSUM_ALG,
                     PayloadCodecAttributes.stringAttribute(checksumAlgorithmValue));

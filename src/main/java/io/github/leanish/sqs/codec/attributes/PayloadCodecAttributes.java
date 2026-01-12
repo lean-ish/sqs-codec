@@ -20,7 +20,7 @@ public final class PayloadCodecAttributes {
     public static final String VERSION = "x-codec-version";
     public static final String RAW_LENGTH = "x-codec-raw-length";
 
-    public static final String VERSION_VALUE = "1.0.0";
+    public static final int VERSION_VALUE = 1;
 
     private PayloadCodecAttributes() {
     }
@@ -38,6 +38,13 @@ public final class PayloadCodecAttributes {
         return MessageAttributeValue.builder()
                 .dataType("String")
                 .stringValue(value)
+                .build();
+    }
+
+    public static MessageAttributeValue numberAttribute(int value) {
+        return MessageAttributeValue.builder()
+                .dataType("Number")
+                .stringValue(Integer.toString(value))
                 .build();
     }
 }

@@ -81,8 +81,10 @@ class SqsPayloadCodecInterceptorTest {
                 .isEqualTo(EncodingAlgorithm.BASE64.id());
         assertThat(encoded.messageAttributes().get(PayloadCodecAttributes.CHECKSUM_ALG).stringValue())
                 .isEqualTo(ChecksumAlgorithm.MD5.id());
+        assertThat(encoded.messageAttributes().get(PayloadCodecAttributes.VERSION).dataType())
+                .isEqualTo("Number");
         assertThat(encoded.messageAttributes().get(PayloadCodecAttributes.VERSION).stringValue())
-                .isEqualTo(PayloadCodecAttributes.VERSION_VALUE);
+                .isEqualTo(Integer.toString(PayloadCodecAttributes.VERSION_VALUE));
         assertThat(encoded.messageAttributes().get(PayloadCodecAttributes.RAW_LENGTH).dataType())
                 .isEqualTo("Number");
         assertThat(encoded.messageAttributes().get(PayloadCodecAttributes.RAW_LENGTH).stringValue())
@@ -449,12 +451,9 @@ class SqsPayloadCodecInterceptorTest {
         Map<String, MessageAttributeValue> attributes = new HashMap<>();
         attributes.put(PayloadCodecAttributes.COMPRESSION_ALG, stringAttribute("GZIP"));
         attributes.put(PayloadCodecAttributes.ENCODING_ALG, stringAttribute("BASE64-STD"));
-        attributes.put(PayloadCodecAttributes.VERSION, stringAttribute(PayloadCodecAttributes.VERSION_VALUE));
+        attributes.put(PayloadCodecAttributes.VERSION, numberAttribute(PayloadCodecAttributes.VERSION_VALUE));
         attributes.put(PayloadCodecAttributes.RAW_LENGTH,
-                MessageAttributeValue.builder()
-                        .dataType("Number")
-                        .stringValue(Integer.toString(PAYLOAD.getBytes(StandardCharsets.UTF_8).length))
-                        .build());
+                numberAttribute(PAYLOAD.getBytes(StandardCharsets.UTF_8).length));
         attributes.put(PayloadCodecAttributes.CHECKSUM_ALG, stringAttribute(ChecksumAlgorithm.MD5.id()));
         attributes.put(PayloadCodecAttributes.CHECKSUM, stringAttribute(md5Base64(PAYLOAD.getBytes(StandardCharsets.UTF_8))));
         ReceiveMessageResponse response = ReceiveMessageResponse.builder()
@@ -486,9 +485,8 @@ class SqsPayloadCodecInterceptorTest {
                         .build())
                 .build();
 
-        ReceiveMessageResponse decoded = (ReceiveMessageResponse) new SqsPayloadCodecInterceptor().modifyResponse(
-                new ModifyResponseContext(response),
-                new ExecutionAttributes());
+        ReceiveMessageResponse decoded = (ReceiveMessageResponse) new SqsPayloadCodecInterceptor()
+                .modifyResponse(new ModifyResponseContext(response), new ExecutionAttributes());
 
         assertThat(decoded.messages().getFirst().body()).isEqualTo(PAYLOAD);
     }
@@ -692,16 +690,18 @@ class SqsPayloadCodecInterceptorTest {
 
     @Test
     void compressionFromAttributeValueRejectsBlank() {
-        assertThatThrownBy(() -> PayloadCodecConfigurationAttributeHandler.compressionFromAttributeValue(" "))
+        String value = " ";
+        assertThatThrownBy(() -> PayloadCodecConfigurationAttributeHandler.compressionFromAttributeValue(value))
                 .isInstanceOf(PayloadCodecException.class)
-                .hasMessage("Unsupported payload compression:  ");
+                .hasMessage("Unsupported payload compression: " + value);
     }
 
     @Test
     void encodingFromAttributeValueRejectsBlank() {
-        assertThatThrownBy(() -> PayloadCodecConfigurationAttributeHandler.encodingFromAttributeValue(" "))
+        String value = " ";
+        assertThatThrownBy(() -> PayloadCodecConfigurationAttributeHandler.encodingFromAttributeValue(value))
                 .isInstanceOf(PayloadCodecException.class)
-                .hasMessage("Unsupported payload encoding:  ");
+                .hasMessage("Unsupported payload encoding: " + value);
     }
 
     private static Stream<Arguments> skipEncodingCases() {
@@ -711,35 +711,27 @@ class SqsPayloadCodecInterceptorTest {
     }
 
     private static Stream<Arguments> defaultedAttributeCases() {
+        Map<String, MessageAttributeValue> emptyAttributes = Map.of();
         Map<String, MessageAttributeValue> missingCompression = Map.of(
-                PayloadCodecAttributes.ENCODING_ALG,
-                stringAttribute(EncodingAlgorithm.BASE64.id()));
+                PayloadCodecAttributes.ENCODING_ALG, stringAttribute(EncodingAlgorithm.BASE64.id()));
         Map<String, MessageAttributeValue> missingEncoding = Map.of(
-                PayloadCodecAttributes.COMPRESSION_ALG,
-                stringAttribute(CompressionAlgorithm.ZSTD.id()));
+                PayloadCodecAttributes.COMPRESSION_ALG, stringAttribute(CompressionAlgorithm.ZSTD.id()));
         Map<String, MessageAttributeValue> blankCompression = Map.of(
-                PayloadCodecAttributes.COMPRESSION_ALG,
-                stringAttribute("  "),
-                PayloadCodecAttributes.ENCODING_ALG,
-                stringAttribute(EncodingAlgorithm.BASE64.id()));
+                PayloadCodecAttributes.COMPRESSION_ALG, stringAttribute("  "),
+                PayloadCodecAttributes.ENCODING_ALG, stringAttribute(EncodingAlgorithm.BASE64.id()));
         Map<String, MessageAttributeValue> blankEncoding = Map.of(
-                PayloadCodecAttributes.COMPRESSION_ALG,
-                stringAttribute(CompressionAlgorithm.ZSTD.id()),
-                PayloadCodecAttributes.ENCODING_ALG,
-                stringAttribute(""));
+                PayloadCodecAttributes.COMPRESSION_ALG, stringAttribute(CompressionAlgorithm.ZSTD.id()),
+                PayloadCodecAttributes.ENCODING_ALG, stringAttribute(""));
         Map<String, MessageAttributeValue> missingVersion = Map.of(
-                PayloadCodecAttributes.COMPRESSION_ALG,
-                stringAttribute(CompressionAlgorithm.NONE.id()),
-                PayloadCodecAttributes.ENCODING_ALG,
-                stringAttribute(EncodingAlgorithm.NONE.id()));
+                PayloadCodecAttributes.COMPRESSION_ALG, stringAttribute(CompressionAlgorithm.NONE.id()),
+                PayloadCodecAttributes.ENCODING_ALG, stringAttribute(EncodingAlgorithm.NONE.id()));
         Map<String, MessageAttributeValue> blankVersion = Map.of(
-                PayloadCodecAttributes.COMPRESSION_ALG,
-                stringAttribute(CompressionAlgorithm.NONE.id()),
-                PayloadCodecAttributes.ENCODING_ALG,
-                stringAttribute(EncodingAlgorithm.NONE.id()),
-                PayloadCodecAttributes.VERSION,
-                stringAttribute(" "));
+                PayloadCodecAttributes.COMPRESSION_ALG, stringAttribute(CompressionAlgorithm.NONE.id()),
+                PayloadCodecAttributes.ENCODING_ALG, stringAttribute(EncodingAlgorithm.NONE.id()),
+                PayloadCodecAttributes.VERSION, stringAttribute(" "));
+
         return Stream.of(
+                Arguments.of(emptyAttributes, CompressionAlgorithm.NONE, EncodingAlgorithm.NONE),
                 Arguments.of(missingCompression, CompressionAlgorithm.NONE, EncodingAlgorithm.BASE64),
                 Arguments.of(missingEncoding, CompressionAlgorithm.ZSTD, EncodingAlgorithm.NONE),
                 Arguments.of(blankCompression, CompressionAlgorithm.NONE, EncodingAlgorithm.BASE64),
@@ -758,33 +750,22 @@ class SqsPayloadCodecInterceptorTest {
 
     private static Stream<Arguments> unsupportedAttributeCases() {
         Map<String, MessageAttributeValue> unsupportedCompression = Map.of(
-                PayloadCodecAttributes.COMPRESSION_ALG,
-                stringAttribute("snappy"),
-                PayloadCodecAttributes.ENCODING_ALG,
-                stringAttribute(EncodingAlgorithm.BASE64.id()),
-                PayloadCodecAttributes.VERSION,
-                stringAttribute(PayloadCodecAttributes.VERSION_VALUE));
+                PayloadCodecAttributes.COMPRESSION_ALG, stringAttribute("snappy"),
+                PayloadCodecAttributes.ENCODING_ALG, stringAttribute(EncodingAlgorithm.BASE64.id()),
+                PayloadCodecAttributes.VERSION, numberAttribute(PayloadCodecAttributes.VERSION_VALUE));
         Map<String, MessageAttributeValue> unsupportedEncoding = Map.of(
-                PayloadCodecAttributes.COMPRESSION_ALG,
-                stringAttribute(CompressionAlgorithm.NONE.id()),
-                PayloadCodecAttributes.ENCODING_ALG,
-                stringAttribute("snappy"),
-                PayloadCodecAttributes.VERSION,
-                stringAttribute(PayloadCodecAttributes.VERSION_VALUE));
+                PayloadCodecAttributes.COMPRESSION_ALG, stringAttribute(CompressionAlgorithm.NONE.id()),
+                PayloadCodecAttributes.ENCODING_ALG, stringAttribute("snappy"),
+                PayloadCodecAttributes.VERSION, numberAttribute(PayloadCodecAttributes.VERSION_VALUE));
         Map<String, MessageAttributeValue> compressionWithoutEncoding = Map.of(
-                PayloadCodecAttributes.COMPRESSION_ALG,
-                stringAttribute(CompressionAlgorithm.GZIP.id()),
-                PayloadCodecAttributes.ENCODING_ALG,
-                stringAttribute(EncodingAlgorithm.NONE.id()),
-                PayloadCodecAttributes.VERSION,
-                stringAttribute(PayloadCodecAttributes.VERSION_VALUE));
+                PayloadCodecAttributes.COMPRESSION_ALG, stringAttribute(CompressionAlgorithm.GZIP.id()),
+                PayloadCodecAttributes.ENCODING_ALG, stringAttribute(EncodingAlgorithm.NONE.id()),
+                PayloadCodecAttributes.VERSION, numberAttribute(PayloadCodecAttributes.VERSION_VALUE));
         Map<String, MessageAttributeValue> unsupportedVersion = Map.of(
-                PayloadCodecAttributes.COMPRESSION_ALG,
-                stringAttribute(CompressionAlgorithm.NONE.id()),
-                PayloadCodecAttributes.ENCODING_ALG,
-                stringAttribute(EncodingAlgorithm.NONE.id()),
-                PayloadCodecAttributes.VERSION,
-                stringAttribute("2.0.0"));
+                PayloadCodecAttributes.COMPRESSION_ALG, stringAttribute(CompressionAlgorithm.NONE.id()),
+                PayloadCodecAttributes.ENCODING_ALG, stringAttribute(EncodingAlgorithm.NONE.id()),
+                PayloadCodecAttributes.VERSION, numberAttribute(2));
+
         return Stream.of(
                 Arguments.of(
                         unsupportedCompression,
@@ -797,7 +778,7 @@ class SqsPayloadCodecInterceptorTest {
                         "Unsupported payload encoding: none"),
                 Arguments.of(
                         unsupportedVersion,
-                        "Unsupported codec version: 2.0.0"));
+                        "Unsupported codec version: 2"));
     }
 
     private static Map<String, MessageAttributeValue> codecAttributes(
@@ -814,12 +795,9 @@ class SqsPayloadCodecInterceptorTest {
         attributes.put(PayloadCodecAttributes.ENCODING_ALG,
                 stringAttribute(effectiveEncoding.id()));
         attributes.put(PayloadCodecAttributes.VERSION,
-                stringAttribute(PayloadCodecAttributes.VERSION_VALUE));
+                numberAttribute(PayloadCodecAttributes.VERSION_VALUE));
         attributes.put(PayloadCodecAttributes.RAW_LENGTH,
-                MessageAttributeValue.builder()
-                        .dataType("Number")
-                        .stringValue(Integer.toString(payloadBytes.length))
-                        .build());
+                numberAttribute(payloadBytes.length));
         if (checksumAlgorithm != ChecksumAlgorithm.NONE) {
             attributes.put(PayloadCodecAttributes.CHECKSUM_ALG,
                     stringAttribute(checksumAlgorithm.id()));
@@ -851,6 +829,13 @@ class SqsPayloadCodecInterceptorTest {
         return MessageAttributeValue.builder()
                 .dataType("String")
                 .stringValue(value)
+                .build();
+    }
+
+    private static MessageAttributeValue numberAttribute(int value) {
+        return MessageAttributeValue.builder()
+                .dataType("Number")
+                .stringValue(Integer.toString(value))
                 .build();
     }
 

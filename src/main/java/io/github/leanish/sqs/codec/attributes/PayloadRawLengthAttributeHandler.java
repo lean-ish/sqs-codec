@@ -26,14 +26,7 @@ public final class PayloadRawLengthAttributeHandler {
 
     public void applyTo(Map<String, MessageAttributeValue> attributes) {
         if (rawLength != null) {
-            attributes.put(PayloadCodecAttributes.RAW_LENGTH, numberAttribute(Integer.toString(rawLength)));
+            attributes.put(PayloadCodecAttributes.RAW_LENGTH, PayloadCodecAttributes.numberAttribute(rawLength));
         }
-    }
-
-    private static MessageAttributeValue numberAttribute(String value) {
-        return MessageAttributeValue.builder()
-                .dataType("Number")
-                .stringValue(value)
-                .build();
     }
 }
