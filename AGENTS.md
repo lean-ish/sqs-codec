@@ -8,10 +8,16 @@ execution interceptor.
 - `./gradlew check -DexcludeTags=integration` (skip LocalStack integration tests)
 
 Integration tests use LocalStack and require Docker.
+Always run `./gradlew check` after each code change.
 
 ## Conventions
 - JDK 21, Gradle.
+- Tests use AssertJ assertions.
+- Keep responsibilities well-separated; avoid mixing concerns in the same class.
 - Keep attribute keys in `PayloadCodecAttributes`.
 - Use `MessageAttributeUtils` for reading/writing `MessageAttributeValue`s.
 - `SqsPayloadCodecInterceptor` defaults: compression `NONE`, encoding `NONE`, checksum `MD5`.
+- When compression is not `NONE` and encoding is `NONE`, the effective encoding is `BASE64`.
 - When adding algorithms, update the enum, the codec tests, and the interceptor tests.
+- JSpecify + NullAway handle nullability, so prefer explicit nullability annotations over defensive null-checks in internal code.
+- Keep null-checks at boundaries (external inputs, SDK responses, IO).
