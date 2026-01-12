@@ -3,12 +3,12 @@
  * Licensed under the MIT License.
  * See LICENSE file in the project root for full license information.
  */
-package io.github.leanish.sqs.codec.encoding;
+package io.github.leanish.sqs.codec.algorithms.encoding;
 
 import java.util.Base64;
 
-import io.github.leanish.sqs.codec.EncodingAlgorithm;
 import io.github.leanish.sqs.codec.PayloadCodecException;
+import io.github.leanish.sqs.codec.algorithms.EncodingAlgorithm;
 
 public final class Base64Encoder implements Encoder {
 
@@ -21,12 +21,12 @@ public final class Base64Encoder implements Encoder {
     }
 
     @Override
-    public String encode(byte[] payload) {
-        return ENCODER.encodeToString(payload);
+    public byte[] encode(byte[] payload) {
+        return ENCODER.encode(payload);
     }
 
     @Override
-    public byte[] decode(String encoded) {
+    public byte[] decode(byte[] encoded) {
         try {
             return DECODER.decode(encoded);
         } catch (IllegalArgumentException e) {

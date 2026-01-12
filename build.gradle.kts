@@ -4,6 +4,7 @@ plugins {
     `java-library`
     `maven-publish`
     checkstyle
+    jacoco
     id("com.diffplug.spotless") version "8.1.0"
     id("net.ltgt.errorprone") version "4.4.0"
 }
@@ -13,6 +14,10 @@ version = "0.1.0-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
+}
+
+jacoco {
+    toolVersion = "0.8.14"
 }
 
 tasks.wrapper {
@@ -82,6 +87,27 @@ tasks.withType<Test>().configureEach {
     jvmArgs("--enable-native-access=ALL-UNNAMED")
 }
 
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "0.90".toBigDecimal()
+            }
+        }
+    }
+}
+
 tasks.withType<JavaCompile>().configureEach {
     // Required from errorprone 2.46.0+ on JDK 21
     options.compilerArgs.add("-XDaddTypeAnnotationsToSymbol=true")
@@ -120,6 +146,10 @@ tasks.register<Copy>("installGitHooks") {
 
 tasks.named("build") {
     dependsOn("installGitHooks")
+}
+
+tasks.named("check") {
+    dependsOn("jacocoTestCoverageVerification")
 }
 
 // Task to set up the project initially

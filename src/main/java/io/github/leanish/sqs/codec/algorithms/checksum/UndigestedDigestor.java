@@ -3,10 +3,10 @@
  * Licensed under the MIT License.
  * See LICENSE file in the project root for full license information.
  */
-package io.github.leanish.sqs.codec.checksum;
+package io.github.leanish.sqs.codec.algorithms.checksum;
 
-import io.github.leanish.sqs.codec.ChecksumAlgorithm;
 import io.github.leanish.sqs.codec.PayloadCodecException;
+import io.github.leanish.sqs.codec.algorithms.ChecksumAlgorithm;
 
 public final class UndigestedDigestor implements Digestor {
 

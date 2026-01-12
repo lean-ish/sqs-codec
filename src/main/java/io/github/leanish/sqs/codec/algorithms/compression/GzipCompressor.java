@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  * See LICENSE file in the project root for full license information.
  */
-package io.github.leanish.sqs.codec.compression;
+package io.github.leanish.sqs.codec.algorithms.compression;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,7 +14,7 @@ import java.io.UncheckedIOException;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import io.github.leanish.sqs.codec.CompressionAlgorithm;
+import io.github.leanish.sqs.codec.algorithms.CompressionAlgorithm;
 
 public final class GzipCompressor implements Compressor {
 
