@@ -5,9 +5,12 @@
  */
 package io.github.leanish.sqs.codec.algorithms.checksum;
 
+import com.google.errorprone.annotations.Immutable;
+
 /**
  * Digestor implementation that always throws for NONE.
  */
+@Immutable
 public class UndigestedDigestor implements Digestor {
 
     @Override

@@ -5,12 +5,12 @@
  */
 package io.github.leanish.sqs.codec.algorithms.checksum;
 
-import io.github.leanish.sqs.codec.PayloadCodecException;
+import io.github.leanish.sqs.codec.CodecException;
 
 /**
  * Thrown when a digest algorithm is unavailable at runtime.
  */
-public class UnavailableAlgorithmException extends PayloadCodecException {
+public class UnavailableAlgorithmException extends CodecException {
 
     public UnavailableAlgorithmException(String message) {
         super(message);

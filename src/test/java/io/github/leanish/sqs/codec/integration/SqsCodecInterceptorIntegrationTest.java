@@ -21,14 +21,14 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.localstack.LocalStackContainer;
 import org.testcontainers.utility.DockerImageName;
 
-import io.github.leanish.sqs.codec.SqsPayloadCodecInterceptor;
+import io.github.leanish.sqs.codec.SqsCodecInterceptor;
 import io.github.leanish.sqs.codec.algorithms.ChecksumAlgorithm;
 import io.github.leanish.sqs.codec.algorithms.CompressionAlgorithm;
 import io.github.leanish.sqs.codec.algorithms.EncodingAlgorithm;
 import io.github.leanish.sqs.codec.algorithms.encoding.InvalidPayloadException;
 import io.github.leanish.sqs.codec.attributes.ChecksumValidationException;
+import io.github.leanish.sqs.codec.attributes.CodecAttributes;
 import io.github.leanish.sqs.codec.attributes.MessageAttributeUtils;
-import io.github.leanish.sqs.codec.attributes.PayloadCodecAttributes;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -44,7 +44,7 @@ import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 
 @Tag("integration")
 @Testcontainers
-class SqsPayloadCodecInterceptorIntegrationTest {
+class SqsCodecInterceptorIntegrationTest {
 
     @Container
     private static final LocalStackContainer LOCALSTACK = new LocalStackContainer(
@@ -74,18 +74,18 @@ class SqsPayloadCodecInterceptorIntegrationTest {
                     .isEqualTo(payload);
             assertThat(message.messageAttributes())
                     .containsKeys(
-                            PayloadCodecAttributes.CONF,
-                            PayloadCodecAttributes.RAW_LENGTH,
-                            PayloadCodecAttributes.CHECKSUM,
+                            CodecAttributes.CONF,
+                            CodecAttributes.RAW_LENGTH,
+                            CodecAttributes.CHECKSUM,
                             "shopId");
 
             Map<String, MessageAttributeValue> attributes = message.messageAttributes();
-            assertThat(attributes.get(PayloadCodecAttributes.CONF).stringValue())
+            assertThat(attributes.get(CodecAttributes.CONF).stringValue())
                     .isEqualTo("v=1;c=zstd;e=base64;h=md5");
-            assertThat(attributes.get(PayloadCodecAttributes.RAW_LENGTH).stringValue())
+            assertThat(attributes.get(CodecAttributes.RAW_LENGTH).stringValue())
                     .isEqualTo(Integer.toString(payloadBytes.length));
-            assertThat(attributes.get(PayloadCodecAttributes.CHECKSUM).stringValue())
-                    .isEqualTo(ChecksumAlgorithm.MD5.digestor().checksum(payloadBytes));
+            assertThat(attributes.get(CodecAttributes.CHECKSUM).stringValue())
+                    .isEqualTo(ChecksumAlgorithm.MD5.implementation().checksum(payloadBytes));
         }
     }
 
@@ -109,8 +109,8 @@ class SqsPayloadCodecInterceptorIntegrationTest {
             assertThat(message.body())
                     .isEqualTo(payload);
             assertThat(message.messageAttributes())
-                    .doesNotContainKeys(PayloadCodecAttributes.CHECKSUM);
-            assertThat(message.messageAttributes().get(PayloadCodecAttributes.CONF).stringValue())
+                    .doesNotContainKeys(CodecAttributes.CHECKSUM);
+            assertThat(message.messageAttributes().get(CodecAttributes.CONF).stringValue())
                     .isEqualTo("v=1;c=none;e=none;h=none");
         }
     }
@@ -155,16 +155,16 @@ class SqsPayloadCodecInterceptorIntegrationTest {
 
                 assertThat(attributes)
                         .containsKeys(
-                                PayloadCodecAttributes.CONF,
-                                PayloadCodecAttributes.RAW_LENGTH,
-                                PayloadCodecAttributes.CHECKSUM,
+                                CodecAttributes.CONF,
+                                CodecAttributes.RAW_LENGTH,
+                                CodecAttributes.CHECKSUM,
                                 "shopId");
-                assertThat(attributes.get(PayloadCodecAttributes.CONF).stringValue())
+                assertThat(attributes.get(CodecAttributes.CONF).stringValue())
                         .isEqualTo("v=1;c=gzip;e=base64-std;h=sha256");
-                assertThat(attributes.get(PayloadCodecAttributes.RAW_LENGTH).stringValue())
+                assertThat(attributes.get(CodecAttributes.RAW_LENGTH).stringValue())
                         .isEqualTo(Integer.toString(payloadBytes.length));
-                assertThat(attributes.get(PayloadCodecAttributes.CHECKSUM).stringValue())
-                        .isEqualTo(ChecksumAlgorithm.SHA256.digestor().checksum(payloadBytes));
+                assertThat(attributes.get(CodecAttributes.CHECKSUM).stringValue())
+                        .isEqualTo(ChecksumAlgorithm.SHA256.implementation().checksum(payloadBytes));
             }
         }
     }
@@ -182,7 +182,7 @@ class SqsPayloadCodecInterceptorIntegrationTest {
                     .queueUrl(queueUrl)
                     .messageBody("!!")
                     .messageAttributes(Map.of(
-                            PayloadCodecAttributes.CONF,
+                            CodecAttributes.CONF,
                             MessageAttributeUtils.stringAttribute("v=1;c=none;e=base64;h=none")))
                     .build());
 
@@ -209,9 +209,9 @@ class SqsPayloadCodecInterceptorIntegrationTest {
                     .queueUrl(queueUrl)
                     .messageBody(payload)
                     .messageAttributes(Map.of(
-                            PayloadCodecAttributes.CONF,
+                            CodecAttributes.CONF,
                             MessageAttributeUtils.stringAttribute("v=1;c=none;e=none;h=md5"),
-                            PayloadCodecAttributes.CHECKSUM,
+                            CodecAttributes.CHECKSUM,
                             MessageAttributeUtils.stringAttribute("bad")))
                     .build());
 
@@ -300,7 +300,7 @@ class SqsPayloadCodecInterceptorIntegrationTest {
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(LOCALSTACK.getAccessKey(), LOCALSTACK.getSecretKey())))
                 .overrideConfiguration(config -> config.addExecutionInterceptor(
-                        SqsPayloadCodecInterceptor.defaultInterceptor()
+                        SqsCodecInterceptor.defaultInterceptor()
                                 .withCompressionAlgorithm(compressionAlgorithm)
                                 .withEncodingAlgorithm(encodingAlgorithm)
                                 .withChecksumAlgorithm(checksumAlgorithm)))

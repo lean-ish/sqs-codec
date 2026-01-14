@@ -27,13 +27,14 @@ public class PayloadChecksumAttributeHandler {
     public static PayloadChecksumAttributeHandler forOutbound(ChecksumAlgorithm checksumAlgorithm, byte[] payloadBytes) {
         String checksumValue = "";
         if (checksumAlgorithm != ChecksumAlgorithm.NONE) {
-            checksumValue = checksumAlgorithm.digestor().checksum(payloadBytes);
+            checksumValue = checksumAlgorithm.implementation()
+                    .checksum(payloadBytes);
         }
         return new PayloadChecksumAttributeHandler(checksumValue);
     }
 
     public static boolean hasAttributes(Map<String, MessageAttributeValue> attributes) {
-        return attributes.containsKey(PayloadCodecAttributes.CHECKSUM);
+        return attributes.containsKey(CodecAttributes.CHECKSUM);
     }
 
     public static boolean needsValidation(
@@ -53,10 +54,10 @@ public class PayloadChecksumAttributeHandler {
             return;
         }
         if (StringUtils.isBlank(checksumValue)) {
-            throw ChecksumValidationException.missingAttribute(PayloadCodecAttributes.CHECKSUM);
+            throw ChecksumValidationException.missingAttribute(CodecAttributes.CHECKSUM);
         }
 
-        String actualChecksum = checksumAlgorithm.digestor()
+        String actualChecksum = checksumAlgorithm.implementation()
                 .checksum(payloadBytes);
         if (!actualChecksum.equals(checksumValue)) {
             throw ChecksumValidationException.mismatch();
@@ -65,7 +66,7 @@ public class PayloadChecksumAttributeHandler {
 
     public void applyTo(Map<String, MessageAttributeValue> attributes) {
         if (StringUtils.isNotBlank(checksumValue)) {
-            attributes.put(PayloadCodecAttributes.CHECKSUM, MessageAttributeUtils.stringAttribute(checksumValue));
+            attributes.put(CodecAttributes.CHECKSUM, MessageAttributeUtils.stringAttribute(checksumValue));
         }
     }
 }

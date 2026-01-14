@@ -18,27 +18,28 @@ import io.github.leanish.sqs.codec.algorithms.compression.ZstdCompressor;
  */
 public enum CompressionAlgorithm {
     /** Zstandard compression for high ratio with good performance. */
-    ZSTD("zstd"),
+    ZSTD("zstd", new ZstdCompressor()),
     /** Snappy compression for low-latency payloads. */
-    SNAPPY("snappy"),
+    SNAPPY("snappy", new SnappyCompressor()),
     /** Gzip compression for interoperability with common tooling. */
-    GZIP("gzip"),
+    GZIP("gzip", new GzipCompressor()),
     /** No compression; payload bytes are left as-is. */
-    NONE("none");
-
-    private static final Compressor ZSTD_COMPRESSOR = new ZstdCompressor();
-    private static final Compressor SNAPPY_COMPRESSOR = new SnappyCompressor();
-    private static final Compressor GZIP_COMPRESSOR = new GzipCompressor();
-    private static final Compressor NO_OP = new NoOpCompressor();
+    NONE("none", new NoOpCompressor());
 
     private final String id;
+    private final Compressor implementation;
 
-    CompressionAlgorithm(String id) {
+    CompressionAlgorithm(String id, Compressor implementation) {
         this.id = id;
+        this.implementation = implementation;
     }
 
     public String id() {
         return id;
+    }
+
+    public Compressor implementation() {
+        return implementation;
     }
 
     public static CompressionAlgorithm fromId(String value) {
@@ -51,14 +52,5 @@ public enum CompressionAlgorithm {
             }
         }
         throw UnsupportedAlgorithmException.compression(value);
-    }
-
-    public Compressor compressor() {
-        return switch (this) {
-            case ZSTD -> ZSTD_COMPRESSOR;
-            case SNAPPY -> SNAPPY_COMPRESSOR;
-            case GZIP -> GZIP_COMPRESSOR;
-            case NONE -> NO_OP;
-        };
     }
 }

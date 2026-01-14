@@ -10,21 +10,21 @@ import io.github.leanish.sqs.codec.algorithms.EncodingAlgorithm;
 import io.github.leanish.sqs.codec.algorithms.compression.Compressor;
 import io.github.leanish.sqs.codec.algorithms.encoding.Encoder;
 
-class PayloadCodec {
+class Codec {
 
     private final Compressor compressor;
     private final Encoder encoder;
 
-    PayloadCodec() {
+    Codec() {
         this(CompressionAlgorithm.NONE, EncodingAlgorithm.NONE);
     }
 
-    PayloadCodec(
+    Codec(
             CompressionAlgorithm compressionAlgorithm,
             EncodingAlgorithm encoding) {
         EncodingAlgorithm effectiveEncoding = EncodingAlgorithm.effectiveFor(compressionAlgorithm, encoding);
-        this.compressor = compressionAlgorithm.compressor();
-        this.encoder = effectiveEncoding.encoder();
+        this.compressor = compressionAlgorithm.implementation();
+        this.encoder = effectiveEncoding.implementation();
     }
 
     public byte[] encode(byte[] payload) {

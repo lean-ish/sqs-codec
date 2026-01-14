@@ -17,24 +17,26 @@ import io.github.leanish.sqs.codec.algorithms.checksum.UndigestedDigestor;
  */
 public enum ChecksumAlgorithm {
     /** MD5 checksum for lightweight integrity checks. */
-    MD5("md5"),
+    MD5("md5", new Md5Digestor()),
     /** SHA-256 checksum for stronger integrity guarantees. */
-    SHA256("sha256"),
+    SHA256("sha256", new Sha256Digestor()),
     /** No checksum; integrity attributes are omitted. */
-    NONE("none");
-
-    private static final Digestor MD5_DIGESTOR = new Md5Digestor();
-    private static final Digestor SHA256_DIGESTOR = new Sha256Digestor();
-    private static final Digestor UNDIGESTED = new UndigestedDigestor();
+    NONE("none", new UndigestedDigestor());
 
     private final String id;
+    private final Digestor implementation;
 
-    ChecksumAlgorithm(String id) {
+    ChecksumAlgorithm(String id, Digestor implementation) {
         this.id = id;
+        this.implementation = implementation;
     }
 
     public String id() {
         return id;
+    }
+
+    public Digestor implementation() {
+        return implementation;
     }
 
     public static ChecksumAlgorithm fromId(String value) {
@@ -47,13 +49,5 @@ public enum ChecksumAlgorithm {
             }
         }
         throw UnsupportedAlgorithmException.checksum(value);
-    }
-
-    public Digestor digestor() {
-        return switch (this) {
-            case MD5 -> MD5_DIGESTOR;
-            case SHA256 -> SHA256_DIGESTOR;
-            case NONE -> UNDIGESTED;
-        };
     }
 }

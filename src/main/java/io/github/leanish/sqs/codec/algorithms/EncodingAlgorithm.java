@@ -17,24 +17,26 @@ import io.github.leanish.sqs.codec.algorithms.encoding.StandardBase64Encoder;
  */
 public enum EncodingAlgorithm {
     /** URL-safe Base64 for attribute values that might travel through URL contexts. */
-    BASE64("base64"),
+    BASE64("base64", new Base64Encoder()),
     /** Standard Base64 for systems that require "+" "/" and "=" padding. */
-    BASE64_STD("base64-std"),
+    BASE64_STD("base64-std", new StandardBase64Encoder()),
     /** No encoding; payload is treated as UTF-8 bytes. */
-    NONE("none");
-
-    private static final Encoder BASE64_ENCODER = new Base64Encoder();
-    private static final Encoder BASE64_STD_ENCODER = new StandardBase64Encoder();
-    private static final Encoder NO_OP = new NoOpEncoder();
+    NONE("none", new NoOpEncoder());
 
     private final String id;
+    private final Encoder implementation;
 
-    EncodingAlgorithm(String id) {
+    EncodingAlgorithm(String id, Encoder implementation) {
         this.id = id;
+        this.implementation = implementation;
     }
 
     public String id() {
         return id;
+    }
+
+    public Encoder implementation() {
+        return implementation;
     }
 
     public static EncodingAlgorithm fromId(String value) {
@@ -47,14 +49,6 @@ public enum EncodingAlgorithm {
             }
         }
         throw UnsupportedAlgorithmException.encoding(value);
-    }
-
-    public Encoder encoder() {
-        return switch (this) {
-            case BASE64 -> BASE64_ENCODER;
-            case BASE64_STD -> BASE64_STD_ENCODER;
-            case NONE -> NO_OP;
-        };
     }
 
     public static EncodingAlgorithm effectiveFor(

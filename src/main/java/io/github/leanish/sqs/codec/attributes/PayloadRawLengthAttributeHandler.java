@@ -29,7 +29,7 @@ public class PayloadRawLengthAttributeHandler {
 
     public void applyTo(Map<String, MessageAttributeValue> attributes) {
         if (rawLength != null) {
-            attributes.put(PayloadCodecAttributes.RAW_LENGTH, MessageAttributeUtils.numberAttribute(rawLength));
+            attributes.put(CodecAttributes.RAW_LENGTH, MessageAttributeUtils.numberAttribute(rawLength));
         }
     }
 }

@@ -5,9 +5,12 @@
  */
 package io.github.leanish.sqs.codec.algorithms.compression;
 
+import com.google.errorprone.annotations.Immutable;
+
 /**
  * No-op compressor that passes payload bytes through unchanged.
  */
+@Immutable
 public class NoOpCompressor implements Compressor {
 
     @Override

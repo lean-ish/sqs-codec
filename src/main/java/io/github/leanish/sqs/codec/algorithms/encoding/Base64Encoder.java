@@ -7,9 +7,12 @@ package io.github.leanish.sqs.codec.algorithms.encoding;
 
 import java.util.Base64;
 
+import com.google.errorprone.annotations.Immutable;
+
 /**
  * URL-safe Base64 encoder implementation.
  */
+@Immutable
 public class Base64Encoder implements Encoder {
 
     private static final Base64.Encoder ENCODER = Base64.getUrlEncoder();

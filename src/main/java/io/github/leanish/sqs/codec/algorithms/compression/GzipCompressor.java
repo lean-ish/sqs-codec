@@ -14,9 +14,12 @@ import java.io.UncheckedIOException;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import com.google.errorprone.annotations.Immutable;
+
 /**
  * Gzip implementation of the compressor strategy.
  */
+@Immutable
 public class GzipCompressor implements Compressor {
 
     @Override

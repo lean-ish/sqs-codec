@@ -10,9 +10,12 @@ import java.io.UncheckedIOException;
 
 import org.xerial.snappy.Snappy;
 
+import com.google.errorprone.annotations.Immutable;
+
 /**
  * Snappy implementation of the compressor strategy.
  */
+@Immutable
 public class SnappyCompressor implements Compressor {
 
     @Override

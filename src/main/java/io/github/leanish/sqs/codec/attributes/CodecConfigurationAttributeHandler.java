@@ -11,7 +11,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import io.github.leanish.sqs.codec.PayloadCodecConfiguration;
+import io.github.leanish.sqs.codec.CodecConfiguration;
 import io.github.leanish.sqs.codec.algorithms.ChecksumAlgorithm;
 import io.github.leanish.sqs.codec.algorithms.CompressionAlgorithm;
 import io.github.leanish.sqs.codec.algorithms.EncodingAlgorithm;
@@ -20,21 +20,21 @@ import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
 /**
  * Parses and writes codec configuration attributes for SQS messages.
  */
-public class PayloadCodecConfigurationAttributeHandler {
+public class CodecConfigurationAttributeHandler {
 
-    private final PayloadCodecConfiguration configuration;
+    private final CodecConfiguration configuration;
 
-    private PayloadCodecConfigurationAttributeHandler(
-            PayloadCodecConfiguration configuration) {
+    private CodecConfigurationAttributeHandler(
+            CodecConfiguration configuration) {
         this.configuration = configuration;
     }
 
     public static boolean hasCodecAttributes(Map<String, MessageAttributeValue> attributes) {
-        return hasNonBlankAttribute(attributes, PayloadCodecAttributes.CONF);
+        return hasNonBlankAttribute(attributes, CodecAttributes.CONF);
     }
 
     public static boolean hasConfigurationAttributes(Map<String, MessageAttributeValue> attributes) {
-        return attributes.containsKey(PayloadCodecAttributes.CONF);
+        return attributes.containsKey(CodecAttributes.CONF);
     }
 
     public static boolean hasAnyAttributes(Map<String, MessageAttributeValue> attributes) {
@@ -42,42 +42,42 @@ public class PayloadCodecConfigurationAttributeHandler {
                 || PayloadChecksumAttributeHandler.hasAttributes(attributes);
     }
 
-    public static PayloadCodecConfigurationAttributeHandler forOutbound(PayloadCodecConfiguration configuration) {
+    public static CodecConfigurationAttributeHandler forOutbound(CodecConfiguration configuration) {
         EncodingAlgorithm effectiveEncoding = EncodingAlgorithm.effectiveFor(
                 configuration.compressionAlgorithm(),
                 configuration.encodingAlgorithm());
-        PayloadCodecConfiguration effectiveConfiguration = new PayloadCodecConfiguration(
+        CodecConfiguration effectiveConfiguration = new CodecConfiguration(
                 configuration.version(),
                 configuration.compressionAlgorithm(),
                 effectiveEncoding,
                 configuration.checksumAlgorithm());
-        return new PayloadCodecConfigurationAttributeHandler(
+        return new CodecConfigurationAttributeHandler(
                 effectiveConfiguration);
     }
 
-    public static PayloadCodecConfigurationAttributeHandler fromAttributes(Map<String, MessageAttributeValue> attributes) {
-        String confValue = MessageAttributeUtils.attributeValue(attributes, PayloadCodecAttributes.CONF);
-        if (attributes.containsKey(PayloadCodecAttributes.CONF)) {
+    public static CodecConfigurationAttributeHandler fromAttributes(Map<String, MessageAttributeValue> attributes) {
+        String confValue = MessageAttributeUtils.attributeValue(attributes, CodecAttributes.CONF);
+        if (attributes.containsKey(CodecAttributes.CONF)) {
             if (StringUtils.isBlank(confValue)) {
                 throw UnsupportedCodecConfigurationException.malformed(String.valueOf(confValue));
             }
-            PayloadCodecConfiguration configuration = parseConf(confValue);
-            return new PayloadCodecConfigurationAttributeHandler(configuration);
+            CodecConfiguration configuration = parseConf(confValue);
+            return new CodecConfigurationAttributeHandler(configuration);
         }
-        PayloadCodecConfiguration configuration = new PayloadCodecConfiguration(
-                PayloadCodecAttributes.VERSION_VALUE,
+        CodecConfiguration configuration = new CodecConfiguration(
+                CodecAttributes.VERSION_VALUE,
                 CompressionAlgorithm.NONE,
                 EncodingAlgorithm.NONE,
                 ChecksumAlgorithm.NONE);
-        return new PayloadCodecConfigurationAttributeHandler(configuration);
+        return new CodecConfigurationAttributeHandler(configuration);
     }
 
-    public PayloadCodecConfiguration configuration() {
+    public CodecConfiguration configuration() {
         return configuration;
     }
 
     public void applyTo(Map<String, MessageAttributeValue> attributes) {
-        attributes.put(PayloadCodecAttributes.CONF,
+        attributes.put(CodecAttributes.CONF,
                 MessageAttributeUtils.stringAttribute(formatConfValue(configuration)));
     }
 
@@ -86,13 +86,13 @@ public class PayloadCodecConfigurationAttributeHandler {
         return StringUtils.isNotBlank(value);
     }
 
-    private static PayloadCodecConfiguration parseConf(String confValue) {
+    private static CodecConfiguration parseConf(String confValue) {
         String trimmed = confValue.trim();
         if (trimmed.isEmpty()) {
             throw UnsupportedCodecConfigurationException.malformed(confValue);
         }
 
-        int version = PayloadCodecAttributes.VERSION_VALUE;
+        int version = CodecAttributes.VERSION_VALUE;
         CompressionAlgorithm compressionAlgorithm = CompressionAlgorithm.NONE;
         EncodingAlgorithm encodingAlgorithm = EncodingAlgorithm.NONE;
         ChecksumAlgorithm checksumAlgorithm = ChecksumAlgorithm.NONE;
@@ -125,7 +125,7 @@ public class PayloadCodecConfigurationAttributeHandler {
             } catch (NumberFormatException e) {
                 throw UnsupportedCodecConfigurationException.unsupportedVersion(versionValue);
             }
-            if (version != PayloadCodecAttributes.VERSION_VALUE) {
+            if (version != CodecAttributes.VERSION_VALUE) {
                 throw UnsupportedCodecConfigurationException.unsupportedVersion(versionValue);
             }
         }
@@ -143,10 +143,10 @@ public class PayloadCodecConfigurationAttributeHandler {
             checksumAlgorithm = ChecksumAlgorithm.fromId(checksumValue);
         }
 
-        return new PayloadCodecConfiguration(version, compressionAlgorithm, encodingAlgorithm, checksumAlgorithm);
+        return new CodecConfiguration(version, compressionAlgorithm, encodingAlgorithm, checksumAlgorithm);
     }
 
-    private static String formatConfValue(PayloadCodecConfiguration configuration) {
+    private static String formatConfValue(CodecConfiguration configuration) {
         return "v=" + configuration.version()
                 + ";c=" + configuration.compressionAlgorithm().id()
                 + ";e=" + configuration.encodingAlgorithm().id()

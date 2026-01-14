@@ -5,9 +5,12 @@
  */
 package io.github.leanish.sqs.codec.algorithms.compression;
 
+import com.google.errorprone.annotations.Immutable;
+
 /**
  * Strategy interface for compressing and decompressing payload bytes.
  */
+@Immutable
 public interface Compressor {
     byte[] compress(byte[] payload);
     byte[] decompress(byte[] payload);

@@ -5,12 +5,12 @@
  */
 package io.github.leanish.sqs.codec.algorithms;
 
-import io.github.leanish.sqs.codec.PayloadCodecException;
+import io.github.leanish.sqs.codec.CodecException;
 
 /**
  * Thrown when an unsupported algorithm id is encountered.
  */
-public class UnsupportedAlgorithmException extends PayloadCodecException {
+public class UnsupportedAlgorithmException extends CodecException {
 
     public UnsupportedAlgorithmException(String message) {
         super(message);

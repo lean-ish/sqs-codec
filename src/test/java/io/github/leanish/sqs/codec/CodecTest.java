@@ -16,11 +16,11 @@ import io.github.leanish.sqs.codec.algorithms.CompressionAlgorithm;
 import io.github.leanish.sqs.codec.algorithms.EncodingAlgorithm;
 import io.github.leanish.sqs.codec.algorithms.encoding.InvalidPayloadException;
 
-class PayloadCodecTest {
+class CodecTest {
 
     @Test
     void encode_default() {
-        PayloadCodec codec = new PayloadCodec();
+        Codec codec = new Codec();
         String payload = "payload-42";
 
         byte[] encoded = codec.encode(payload.getBytes(StandardCharsets.UTF_8));
@@ -33,7 +33,7 @@ class PayloadCodecTest {
 
     @Test
     void encode_happyCase() {
-        PayloadCodec codec = new PayloadCodec(CompressionAlgorithm.ZSTD, EncodingAlgorithm.NONE);
+        Codec codec = new Codec(CompressionAlgorithm.ZSTD, EncodingAlgorithm.NONE);
         String payload = "{\"value\":42}";
         byte[] encoded = codec.encode(payload.getBytes(StandardCharsets.UTF_8));
 
@@ -45,7 +45,7 @@ class PayloadCodecTest {
 
     @Test
     void decode_invalidBase64() {
-        PayloadCodec codec = new PayloadCodec(CompressionAlgorithm.NONE, EncodingAlgorithm.BASE64);
+        Codec codec = new Codec(CompressionAlgorithm.NONE, EncodingAlgorithm.BASE64);
 
         assertThatThrownBy(() -> codec.decode("!!!".getBytes(StandardCharsets.UTF_8)))
                 .isInstanceOf(InvalidPayloadException.class)

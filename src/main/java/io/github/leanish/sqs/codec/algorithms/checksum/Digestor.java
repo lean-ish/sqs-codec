@@ -5,9 +5,12 @@
  */
 package io.github.leanish.sqs.codec.algorithms.checksum;
 
+import com.google.errorprone.annotations.Immutable;
+
 /**
  * Strategy interface for computing payload checksums.
  */
+@Immutable
 public interface Digestor {
     String checksum(byte[] payload);
 }

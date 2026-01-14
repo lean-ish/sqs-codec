@@ -9,9 +9,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
+import com.google.errorprone.annotations.Immutable;
+
 /**
  * SHA-256 digest implementation.
  */
+@Immutable
 public class Sha256Digestor implements Digestor {
 
     private static final Base64.Encoder BASE64_ENCODER = Base64.getUrlEncoder();

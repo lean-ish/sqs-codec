@@ -14,10 +14,12 @@ import java.io.UncheckedIOException;
 
 import com.github.luben.zstd.ZstdInputStreamNoFinalizer;
 import com.github.luben.zstd.ZstdOutputStreamNoFinalizer;
+import com.google.errorprone.annotations.Immutable;
 
 /**
  * Zstandard implementation of the compressor strategy.
  */
+@Immutable
 public class ZstdCompressor implements Compressor {
 
     @Override

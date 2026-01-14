@@ -5,12 +5,12 @@
  */
 package io.github.leanish.sqs.codec.attributes;
 
-import io.github.leanish.sqs.codec.PayloadCodecException;
+import io.github.leanish.sqs.codec.CodecException;
 
 /**
  * Thrown when codec configuration attributes are malformed or unsupported.
  */
-public class UnsupportedCodecConfigurationException extends PayloadCodecException {
+public class UnsupportedCodecConfigurationException extends CodecException {
     public UnsupportedCodecConfigurationException(String message) {
         super(message);
     }

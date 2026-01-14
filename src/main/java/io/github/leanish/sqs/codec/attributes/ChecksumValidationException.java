@@ -7,12 +7,12 @@ package io.github.leanish.sqs.codec.attributes;
 
 import org.jspecify.annotations.Nullable;
 
-import io.github.leanish.sqs.codec.PayloadCodecException;
+import io.github.leanish.sqs.codec.CodecException;
 
 /**
  * Thrown when checksum attributes are missing or fail validation.
  */
-public class ChecksumValidationException extends PayloadCodecException {
+public class ChecksumValidationException extends CodecException {
 
     private final @Nullable String detail;
 

@@ -23,28 +23,28 @@ Java:
 Send with defaults (no compression/encoding, MD5 checksum); decode/validate based on message attributes:
 ```java
 SqsAsyncClient client = SqsAsyncClient.builder()
-        .overrideConfiguration(config -> config.addExecutionInterceptor(SqsPayloadCodecInterceptor.defaultInterceptor()))
-        .checksumValidationEnabled(false) // handled by SqsPayloadCodecInterceptor
+        .overrideConfiguration(config -> config.addExecutionInterceptor(SqsCodecInterceptor.defaultInterceptor()))
+        .checksumValidationEnabled(false) // handled by SqsCodecInterceptor
         .build();
 ```
 
 Send with explicit Zstd compression + default Base64 encoding (when compression is present) + default MD5 checksum; decode/validate based on message attributes:
 ```java
 SqsAsyncClient client = SqsAsyncClient.builder()
-        .overrideConfiguration(config -> config.addExecutionInterceptor(SqsPayloadCodecInterceptor.defaultInterceptor()
+        .overrideConfiguration(config -> config.addExecutionInterceptor(SqsCodecInterceptor.defaultInterceptor()
                 .withCompressionAlgorithm(CompressionAlgorithm.ZSTD)))
-        .checksumValidationEnabled(false) // handled by SqsPayloadCodecInterceptor
+        .checksumValidationEnabled(false) // handled by SqsCodecInterceptor
         .build();
 ```
 
 Send with explicit compression, encoding, and checksum; decode/validate based on message attributes:
 ```java
 SqsClient client = SqsClient.builder()
-        .overrideConfiguration(config -> config.addExecutionInterceptor(SqsPayloadCodecInterceptor.defaultInterceptor()
+        .overrideConfiguration(config -> config.addExecutionInterceptor(SqsCodecInterceptor.defaultInterceptor()
                 .withCompressionAlgorithm(CompressionAlgorithm.GZIP)
                 .withEncodingAlgorithm(EncodingAlgorithm.BASE64_STD)
                 .withChecksumAlgorithm(ChecksumAlgorithm.SHA256)))
-        .checksumValidationEnabled(false) // handled by SqsPayloadCodecInterceptor
+        .checksumValidationEnabled(false) // handled by SqsCodecInterceptor
         .build();
 ```
 
@@ -78,7 +78,7 @@ Other attributes:
 
 ## Error handling
 
-All codec failures extend `PayloadCodecException`. You can catch the base type
+All codec failures extend `CodecException`. You can catch the base type
 to handle any codec error, or specific exceptions when you want targeted
 responses.
 
@@ -89,7 +89,7 @@ try {
     // use decoded payloads
 } catch (InvalidPayloadException e) {
     // bad payload data, consider DLQ or logging
-} catch (PayloadCodecException e) {
+} catch (CodecException e) {
     // fallback for any other codec issue
 }
 ```
@@ -105,7 +105,7 @@ try {
     // malformed/duplicate/unsupported codec configuration
 } catch (UnsupportedAlgorithmException e) {
     // unsupported compression/encoding/checksum values
-} catch (PayloadCodecException e) {
+} catch (CodecException e) {
     // catch-all for other codec errors
 }
 ```

@@ -18,7 +18,7 @@ class EncodingTest {
     private final StandardBase64Encoder standardEncoder = new StandardBase64Encoder();
     private final NoOpEncoder noOpEncoder = new NoOpEncoder();
 
-    // just a few tests as SqsPayloadCodecInterceptorIntegrationTest covers most cases already
+    // just a few tests as SqsCodecInterceptorIntegrationTest covers most cases already
     @Test
     void noOp() {
         String payload = "payload-42";

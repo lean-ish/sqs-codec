@@ -8,13 +8,13 @@ package io.github.leanish.sqs.codec;
 /**
  * Base runtime exception for errors raised by the SQS payload codec.
  */
-public class PayloadCodecException extends RuntimeException {
+public class CodecException extends RuntimeException {
 
-    public PayloadCodecException(String message) {
+    public CodecException(String message) {
         super(message);
     }
 
-    public PayloadCodecException(String message, Throwable cause) {
+    public CodecException(String message, Throwable cause) {
         super(message, cause);
     }
 }

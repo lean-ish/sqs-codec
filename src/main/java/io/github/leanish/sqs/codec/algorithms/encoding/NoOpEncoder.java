@@ -5,9 +5,12 @@
  */
 package io.github.leanish.sqs.codec.algorithms.encoding;
 
+import com.google.errorprone.annotations.Immutable;
+
 /**
  * No-op encoder that passes payload bytes through unchanged.
  */
+@Immutable
 public class NoOpEncoder implements Encoder {
 
     @Override
