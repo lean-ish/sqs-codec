@@ -1,13 +1,18 @@
 # Gradle
-/.gradle/
-/.gradle-*/
-/build/
+.gradle/
+.gradle-*/
+build/
 
 # IDE
-/.idea/
+.idea/
 
 # OS
-**/.DS_Store
+.DS_Store
 
 # Other
-/.claude/
+.claude/
+.kotlin/
+.sandcastle/
+node_modules/
+package.json
+package-lock.json
