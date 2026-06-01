@@ -1,4 +1,5 @@
 # Gradle
+# Also covers nested Gradle caches/build outputs if this library is checked out inside a larger workspace.
 .gradle/
 .gradle-*/
 build/
@@ -13,6 +14,8 @@ build/
 .claude/
 .kotlin/
 .sandcastle/
+
+# Local Node tooling artifacts are not project metadata for this Java library.
 node_modules/
 package.json
 package-lock.json
