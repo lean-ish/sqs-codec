@@ -48,7 +48,7 @@ class SqsCodecInterceptorIntegrationTest {
 
     @Container
     private static final LocalStackContainer LOCALSTACK = new LocalStackContainer(
-            DockerImageName.parse("localstack/localstack:3.0.2"))
+            DockerImageName.parse("localstack/localstack:4.14.0"))
             .withServices("sqs");
 
     @Test
