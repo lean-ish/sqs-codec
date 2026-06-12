@@ -74,7 +74,6 @@ Defaults:
 - Compression: `NONE`
 - Compression level: unset
 - Encoding: `NONE`
-- Encoding: `NONE`
 - Checksum: `MD5`
 - When compression is enabled and encoding remains `NONE`, the effective payload encoding is `BASE64`.
 - `ASCII85` is experimental; it uses a strict canonical dialect without `<~ ~>` framing, whitespace, or `z`/`y` shorthands.
@@ -203,7 +202,7 @@ try {
 Build target is Java 17 bytecode.
 Toolchain comes from `java-conventions` (default compile/runtime JDK 25).
 CI (`ci.yml`) runs full `build` on JDK 25.
-Legacy runtime checks (`legacy-jdk-check.yml`) run tests on JDK 17 and 21, and can be run manually or are required by publishing.
+Legacy runtime checks (`testing-legacy-jdk.yml`) run tests on JDK 17 and 21, and can be run manually or are required by publishing.
 
 Run full checks (tests, checkstyle, spotless, jacoco):
 ```bash
