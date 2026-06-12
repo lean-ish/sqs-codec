@@ -74,7 +74,6 @@ Defaults:
 - Compression: `NONE`
 - Compression level: unset
 - Encoding: `NONE`
-- Encoding: `NONE`
 - Checksum: `MD5`
 - When compression is enabled and encoding remains `NONE`, the effective payload encoding is `BASE64`.
 - `ASCII85` is experimental; it uses a strict canonical dialect without `<~ ~>` framing, whitespace, or `z`/`y` shorthands.
